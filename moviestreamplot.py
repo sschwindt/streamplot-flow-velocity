@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Water-flow Streamplot Generator
+Flow-velocity Streamplot Generator
 --------------------------------
 Creates a streamplot from a 1080 p video clip of water flow. Flow velocities are approximative!
 
@@ -16,6 +16,7 @@ import sys
 import cv2  # opencv
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL.DdsImagePlugin import DDS_HEADER_FLAGS_PITCH
 from matplotlib.colors import Normalize
 from skimage.measure import block_reduce   # pip install scikit-image
 import gc
@@ -23,12 +24,13 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 # USER PARAMETERS ------------------------------------------------------------------------------------------------------
-FILENAME            = "test-videos/hq100-inlet2.mov"
-BLOCK               = (64, 64)  # down-sampling window (rows, cols): min(frame_dim / BLOCK) = approx. 70 to 250 - the smaller BLOCK is, the more noise
-MAG_THRESH          = 0.3       # px / frame, vectors below are discarded - set smaller 0.5 for FPS=30; min. 0.3, max. 0.5
+FILENAME            = "test-videos/mq-inlet.mov"
+BLOCK               = (32, 32)  # down-sampling window (rows, cols): min(frame_dim / BLOCK) = approx. 70 to 250 - the smaller BLOCK is, the more noise
+MAG_THRESH          = 0.1       # px / frame, vectors below are discarded - set smaller 0.5 for FPS=30; min. 0.3, max. 0.5
 DISTANCE_2_OBJECT   = 0.75       # m from lens to water
-LENS_TYPE           = "wide"    # "normal" or "wide" - defines opening angle
+LENS_TYPE           = "wide"    # "normal" (Main Camera) or "wide" (Ultrawide Camera) - defines opening angle
 PX_WIDTH            = 1920      # horizontal resolution in pixels
+DPI                 = 600       # export figure (jpg) dpi
 SHOW_FIGURE = False
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -89,7 +91,7 @@ def make_streamplot(u, v, speed,
     Saves a JPG on top of the video and shows the figure if SHOW_FIGURE is True.
     """
 
-    log.info("Rendering streamplot …")
+    log.info("Rendering streamplot ...")
     h_ds, w_ds = u.shape
     by, bx     = block
 
@@ -157,7 +159,7 @@ def make_streamplot(u, v, speed,
         plt.show()
 
     out_png = Path(FILENAME).with_suffix('.jpg')
-    fig.savefig(out_png, bbox_inches='tight', dpi=400)
+    fig.savefig(out_png, bbox_inches='tight', dpi=DPI)
     log.info("Saved figure to %s", out_png)
 
 
@@ -165,7 +167,7 @@ def main() -> None:
     try:
         # Derived scale factor
         mm_per_px = compute_mm_per_px(DISTANCE_2_OBJECT, LENS_TYPE, PX_WIDTH)
-        msg_guide = "Guide values:\n\t - for distance = 0.5 m, mm/px should be ~0.44\n\t - for distance = 2.8 m, mm/px should be ~1.46 "
+        msg_guide = "Guide values (normal/main camera) for distances of:\n\t - 0.5 m, mm/px should be ~0.44\n\t - 2.8 m, mm/px should be ~1.46 "
         log.info("mm / px = %.3f  (distance %.2f m, lens '%s')",
                  mm_per_px, DISTANCE_2_OBJECT, LENS_TYPE)
         log.info(msg_guide)
