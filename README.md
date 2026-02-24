@@ -130,6 +130,16 @@ At the top of the script, user-tunable constants are located:
 
 ---
 
+To find out the horizontal resolution (px; `PX_WIDTH`) of your video, open Terminal in the folder containing your video and tap (replace `video-name.mp4` with your filename):
+
+```bash
+ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 video-name.mp4
+```
+
+*Note: `ffprobe` is part of the FFmpeg suite, which can be installed from https://ffmpeg.org/download.html.*
+
+---
+
 ## Output
 
 * **Default behaviour:** the figure is saved as a `.jpg` **next to the video** (`Path(FILENAME).with_suffix('.jpg')`). For example, `test-videos/hq100-inlet.mov` >> `test-videos/hq100-inlet.jpg`.

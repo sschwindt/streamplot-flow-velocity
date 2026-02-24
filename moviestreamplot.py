@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 import sys
 import cv2  # opencv
+import cmocean  # required for the 'cmo.thermal' colormap
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL.DdsImagePlugin import DDS_HEADER_FLAGS_PITCH
@@ -24,11 +25,11 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 # USER PARAMETERS ------------------------------------------------------------------------------------------------------
-FILENAME            = "test-videos/mq-inlet.mov"
-BLOCK               = (32, 32)  # down-sampling window (rows, cols): min(frame_dim / BLOCK) = approx. 70 to 250 - the smaller BLOCK is, the more noise
-MAG_THRESH          = 0.1       # px / frame, vectors below are discarded - set smaller 0.5 for FPS=30; min. 0.3, max. 0.5
-DISTANCE_2_OBJECT   = 0.75       # m from lens to water
-LENS_TYPE           = "wide"    # "normal" (Main Camera) or "wide" (Ultrawide Camera) - defines opening angle
+FILENAME            = "test-videos/2024-kb13-inn-ptv.mp4"
+BLOCK               = (8, 8)  # down-sampling window (rows, cols): min(frame_dim / BLOCK) = approx. 70 to 250 - the smaller BLOCK is, the more noise
+MAG_THRESH          = 0.15       # px / frame, vectors below are discarded - set smaller 0.5 for FPS=30; min. 0.1, max. 0.5
+DISTANCE_2_OBJECT   = 30       # m from lens to water
+LENS_TYPE           = "normal"    # "normal" (Main Camera) or "wide" (Ultrawide Camera) - defines opening angle
 PX_WIDTH            = 1920      # horizontal resolution in pixels
 DPI                 = 600       # export figure (jpg) dpi
 SHOW_FIGURE = False
@@ -126,7 +127,7 @@ def make_streamplot(u, v, speed,
         u,
         v,
         color=speed,
-        cmap='turbo',
+        cmap='cmo.thermal',
         norm=norm,
         linewidth=2 * speed / (speed.max() + 1e-9),
         density=1.2,
