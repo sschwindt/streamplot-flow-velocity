@@ -132,3 +132,8 @@ _build/
 *.sublime-workspace/
 *.sublime*
 *.sublime*/
+
+# not push more example videos
+test-videos/
+test-outputs/
+
